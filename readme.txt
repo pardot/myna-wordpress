@@ -1,6 +1,6 @@
 === Myna for WordPress ===
 Contributors: cliffseal
-Donate link: http://cliffseal.com
+Donate link: http://pardot.com
 Tags: maya, testing, MAB, decision theory, web content optimisation
 Requires at least: 3.3.2
 Tested up to: 3.3.2
