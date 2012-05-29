@@ -14,14 +14,6 @@ jQuery('#mynawp_new_experiment').keyup(function(){
 jQuery('.deleteexp').click(function(){
 	var answer = confirm('Are you sure you want to delete this experiment? This cannot be undone.');
 	if ( answer ) {
-		var curuuid = jQuery('#mynawp_uuid_string').val();
-		var delexpuuid = jQuery('.deleteexp').attr('rel');
-		var newcuruuid = curuuid.replace(delexpuuid, " ");
-		jQuery("#mynawp_uuid_string").val(newcuruuid);
-		var sendData = jQuery("#optionspost").serialize();
-		jQuery.post("options.php", sendData, function(response) {
-			// Do something here, if desired
-	    });
 		return true;
 	} else {
 		return false;
