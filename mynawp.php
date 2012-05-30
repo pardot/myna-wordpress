@@ -32,7 +32,8 @@ License:
 register_activation_hook( __FILE__, 'mynawp_activate' );
 function mynawp_activate() {
 	update_option('mynawp_options', '');
-	update_option('mynawp_uuids', '');
+	$array = array('uuids' => '', 'names' => '');
+	update_option('mynawp_uuids', $array);
 }
 
 /* Options Menu Addition */
@@ -47,10 +48,13 @@ function mynawp_admin_add_page() {
 
 if ( isset($_GET['newvar']) && ( $_GET['newvar'] != '' ) ) {
 	mynawp_addvariant();
-} elseif ( isset($_GET['delvar']) && ( $_GET['delvar'] != '' ) ) {
+} elseif ( isset($_GET['delvar'] ) && ( $_GET['delvar'] != '' ) ) {
 	mynawp_delvariant();
-} elseif ( isset($_GET['delexp']) && ( $_GET['delexp'] != '' ) ) {
+} elseif ( isset($_GET['delexp'] ) && ( $_GET['delexp'] != '' ) ) {
 	mynawp_delexp();
+} elseif ( isset($_GET['updexp'] ) && ( $_GET['updexp'] != '' ) ) {
+	$uuid = trim($_GET['updexp'], ',');
+	mynawp_update_uuid($uuid);
 }
 
 function mynawp_addvariant() {
@@ -112,22 +116,34 @@ function mynawp_addexp() {
 			'experiment' => $newexp
 		))
 	);
-	$response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/experiment/new', $args));
-	$decoded = json_decode($response);
-	if ( isset($decoded->{'uuid'}) ) {
-		$addtoview = $decoded->{'uuid'};
-		mynawp_add_uuid($addtoview);
+	$option = get_option('mynawp_uuids');
+	$pos = strpos($option['names'],$newexp);
+	if ( $pos === false ) {
+		$response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/experiment/new', $args));
+		$decoded = json_decode($response);
+		if ( isset($decoded->{'uuid'}) ) {
+			$addtoview = $decoded->{'uuid'};
+			$option = get_option('mynawp_uuids');
+			$uuids = explode(',', $option);
+			mynawp_add_uuid($addtoview);
+			$option['names'] = $newexp;
+			update_option('mynawp_uuids', $option);	
+		} else {
+			$addtoview = '';
+		}
+		if ( is_wp_error( $response ) ) {
+	  		echo 'An error occurred.';
+		}
+		return $addtoview;
 	} else {
-		$addtoview = '';
+		return false;
 	}
-	if ( is_wp_error( $response ) ) {
-  		echo 'An error occurred.';
-	}
-	return $addtoview;
 }
 
-function mynawp_delexp() {
-	$uuid = $_GET['uuid'];
+function mynawp_delexp( $uuid ) {
+	if ( !$uuid ) {
+		$uuid = $_GET['uuid'];
+	}	
 	$options = get_option('mynawp_options');
 	$username = mynawp_decrypt($options['email_string'], 'mynawp_key');
 	$password = mynawp_decrypt($options['pwd_string'], 'mynawp_key');
@@ -138,11 +154,14 @@ function mynawp_delexp() {
 		),
 		'method' => 'POST',
 	);
+	$response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/info', $args));
+	$storename = json_decode($response);
+	$storename = $storename->{'name'};
 	$response = wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/delete', $args);
 	if ( is_wp_error( $response ) ) {
   		echo 'An error occurred.';
 	}
-	mynawp_remove_uuid($uuid);
+	mynawp_remove_uuid($uuid,$storename);
 }
 
 /* Options Page Functions */
@@ -165,7 +184,7 @@ function mynawp_options_page() { ?>
 			<?php settings_fields('mynawp_options'); ?>
 			<?php do_settings_sections('mynaplugin'); ?>
 			<br />
-			<input class="button-primary" name="Submit" type="submit" value="<?php esc_attr_e('Save Options'); ?>" />
+			<input class="button-primary" name="Submit" type="submit" value="<?php esc_attr_e('Save Login Settings'); ?>" />
 		</form>
 	</div>
 
@@ -192,9 +211,9 @@ function mynawp_section_text() {
 		)
 	);
 	if ( isset($_GET['newexp']) ) {
-		$uuidstring = $uuids . ',' . mynawp_addexp();
+		$uuidstring = $uuids['uuids'] . ',' . mynawp_addexp();
 	} else {
-		$uuidstring = $uuids;
+		$uuidstring = $uuids['uuids'];
 	}	
 	$uuid = explode(",", $uuidstring);
 	$count = count($uuid);
@@ -216,32 +235,57 @@ function mynawp_section_text() {
 		}
 	}
 	echo "<h3>Create a New Experiment</h3><input id='mynawp_new_experiment' name='new_experiment' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&newexp=' class='button-primary' id='newexpurl'>Create This Experiment</a>";
+	echo '<h3>Experiments to Display</h3><p>Enter a comma separated list of experiment UUIDs.</p>' . mynawp_uuid_string() . '<a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $uuids['uuids'] . '&updexp=" id="updateuuid" class="button-primary">Update Experiments Display</a>';
 	echo '<h2>Login Settings</h2>';
 }
 
 function mynawp_add_uuid($uuid) {
 	$option = get_option('mynawp_uuids');
-	if ( $option != '' ) {
-		$uuids = explode(',', $option);
-		if ( !in_array($uuid) ) {
+	$names = explode(',', $option['names']);
+	if ( ($option != '') && (!in_array($_GET['newexp'],$names)) ) {
+		$uuids = explode(',', $option['uuids']);
+		if ( !in_array($uuid, $uuids) ) {
 			array_push($uuids, $uuid);
-		}	
+			array_push($names,$_GET['newexp']);
+		}
 		$uuids = implode(',', $uuids);
+		$names = implode(',', $names);
 	} else {
 		$uuids = $uuid;
-	}	
-	update_option('mynawp_uuids', $uuids);
+		$names = implode(',', $names);
+		$names = $names;
+	}
+	$uuids = trim($uuids, ',');
+	$names = trim($names, ',');
+	$option['uuids'] = $uuids;
+	$option['names'] = $names;
+	update_option('mynawp_uuids', $option);
 }
 
-function mynawp_remove_uuid($uuid) {
+function mynawp_remove_uuid($uuid,$name) {
 	$option = get_option('mynawp_uuids');
-	$newoption = str_replace($uuid, '', $option);
+	$newuuid = str_replace($uuid, '', $option['uuids']);
+	if ( $newuuid[0] == ',' ) {
+		$newuuid = substr($newuuid, 1);
+	} 
+	$newoption['uuid'] = trim($newuuid, ',');
+	$newname = str_replace($name, '', $option['names']);
+	if ( $newname[0] == ',' ) {
+		$newname = substr($newname, 1);
+	} 
+	$newoption['names'] = trim($newname, ',');
 	update_option('mynawp_uuids', $newoption);
+}
+
+function mynawp_update_uuid($uuid) {
+	$uuids = get_option('mynawp_uuids');
+	$uuids['uuids'] = $uuid;
+	update_option('mynawp_uuids', $uuids);
 }
 
 function mynawp_uuid_string() {
 	$options = get_option('mynawp_uuids');
-	echo "<input id='mynawp_email_string' name='mynawp_options[email_string]' size='53' type='text' value='{$options}' />";
+	return "<input id='mynawp_uuid_string' name='mynawp_options[email_string]' size='53' type='text' value='{$options['uuids']}' />";
 }
 
 function mynawp_email_string() {
@@ -334,4 +378,5 @@ function mynawp_decrypt($encrypted_input_string, $key='mynawp_key'){
 register_deactivation_hook( __FILE__, 'mynawp_deactivate' );
 function mynawp_deactivate() {
 	delete_option('mynawp_options');
+	delete_option('mynawp_uuids');
 }
