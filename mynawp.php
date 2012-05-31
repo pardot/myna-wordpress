@@ -124,11 +124,7 @@ function mynawp_addexp() {
 		$decoded = json_decode($response);
 		if ( isset($decoded->{'uuid'}) ) {
 			$addtoview = $decoded->{'uuid'};
-			//$option = get_option('mynawp_uuids');
-			//$uuids = explode(',', $option['uuid']);
 			mynawp_add_uuid($addtoview);
-			//$option['names'] = $newexp;
-			//update_option('mynawp_uuids', $option);	
 		} else {
 			$addtoview = '';
 		}
