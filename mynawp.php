@@ -75,7 +75,7 @@ function mynawp_addvariant() {
 		))
 	);
 	$response = wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/new-variant', $args);
-	if ( is_wp_error( $response ) ) {
+	if ( is_wp_error($response) ) {
   		echo 'An error occurred.';
 	}
 }
@@ -97,7 +97,7 @@ function mynawp_delvariant() {
 		))
 	);
 	$response = wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/delete-variant', $args);
-	if ( is_wp_error( $response ) ) {
+	if ( is_wp_error($response) ) {
   		echo 'An error occurred.';
 	}
 }
@@ -128,7 +128,7 @@ function mynawp_addexp() {
 		} else {
 			$addtoview = '';
 		}
-		if ( is_wp_error( $response ) ) {
+		if ( is_wp_error($response) ) {
 	  		echo 'An error occurred.';
 		}
 		return $addtoview;
@@ -153,7 +153,7 @@ function mynawp_delexp( $uuid = null ) {
 	$storename = json_decode($response);
 	$storename = $storename->{'name'};
 	$response = wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/delete', $args);
-	if ( is_wp_error( $response ) ) {
+	if ( is_wp_error($response) ) {
   		echo 'An error occurred.';
 	}
 	mynawp_remove_uuid($uuid,$storename);
@@ -166,7 +166,7 @@ add_action( 'admin_enqueue_scripts', 'mynawp_admin_add_script' );
 
 function mynawp_admin_add_script() {
 	wp_enqueue_script('jquery');
-	wp_register_script('mynawp', plugins_url( 'mynawp.js' , __FILE__ ), array('jquery'), false, true);
+	wp_register_script('mynawp', plugins_url( 'mynawp-admin.js' , __FILE__ ), array('jquery'), false, true);
 	wp_enqueue_script('mynawp');
 }
 
@@ -306,20 +306,51 @@ function mynawp_pwd_string() {
 
 /* Output Functions for Theme */
 
-function getMynaVar() {
-	 
-	$options = get_option('mynawp_options');
-	//$uuid = $options['uuid_string'];
-		
-	$response = wp_remote_retrieve_body(wp_remote_get('http://api.mynaweb.com/v1/experiment/' . $uuid . '/suggest'));
-	$decoded = json_decode($response);
+// Add Scripts
+add_action( 'wp_enqueue_scripts', 'mynawp_add_script' );
 
-	if ( is_wp_error( $response ) ) {
-		echo 'An error occurred.';
+function mynawp_add_script() {
+	wp_enqueue_script('jquery');
+	wp_register_script('mynawp', plugins_url( 'mynawp.js' , __FILE__ ), array('jquery'), false, true);
+	wp_register_script('myna', 'http://app.mynaweb.com/static/clients/basic.myna.min.js', array('jquery'), false, true);
+	wp_enqueue_script('myna');
+	wp_enqueue_script('mynawp');
+}
+
+// Fetch and Return the Myna Suggestion for use in PHP (i.e. get_myna_var('2382dbab-3ed5-406b-be36-08032fab8042'); echo $myna->choice; ) - http://mynaweb.com/docs/api.html#suggest
+function get_myna_var($uuid) {
+	 		
+	$response = wp_remote_retrieve_body(wp_remote_get('http://api.mynaweb.com/v1/experiment/' . $uuid . '/suggest'));
+	global $myna;
+	$myna = json_decode($response);
+
+	if ( is_wp_error($response) ) {
+		return '';
+	}
+  
+}
+
+// Create and echo a Myna Link for Templating (i.e. myna_link('2382dbab-3ed5-406b-be36-08032fab8042','http://google.com',true); produces <a href="http://google.com" rel="bbe13197-5012-48f0-932f-38cd49010bb6" target="_blank">Myna Suggestion</a>)- http://mynaweb.com/docs/api.html#suggest
+function myna_link($uuid,$link,$newwin=false,$nofollow=false) {
+	 		
+	$response = wp_remote_retrieve_body(wp_remote_get('http://api.mynaweb.com/v1/experiment/' . $uuid . '/suggest'));
+	$myna = json_decode($response);
+
+	if ( is_wp_error($response) ) {
+		return '';
 	} else {
-		if ( $decoded->{'choice'} == 'cta1' ) {
-			echo $copyone;
+		$output = '<a href="' . $link . '" ';
+		$output .= 'rel="myna-' . $myna->{'token'} . '|' . $uuid;
+		if ( $nofollow == true ) {
+			$output .= ' nofollow" ';
+		} else {
+			$output .= '" ';
 		}
+		if ( $newwin == true ) {
+			$output .= ' target="_blank"';
+		}
+		$output .= '>' . $myna->{'choice'} . '</a>';
+		echo $output;
 	}
   
 }
