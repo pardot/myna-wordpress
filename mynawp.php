@@ -51,7 +51,8 @@ if ( isset($_GET['newvar']) && ( $_GET['newvar'] != '' ) ) {
 } elseif ( isset($_GET['delvar'] ) && ( $_GET['delvar'] != '' ) ) {
 	mynawp_delvariant();
 } elseif ( isset($_GET['delexp'] ) && ( $_GET['delexp'] != '' ) ) {
-	mynawp_delexp();
+	$uuid = $_GET['updexp'];
+	mynawp_delexp($uuid);
 } elseif ( isset($_GET['updexp'] ) && ( $_GET['updexp'] != '' ) ) {
 	$uuid = trim($_GET['updexp'], ',');
 	mynawp_update_uuid($uuid);
@@ -123,11 +124,11 @@ function mynawp_addexp() {
 		$decoded = json_decode($response);
 		if ( isset($decoded->{'uuid'}) ) {
 			$addtoview = $decoded->{'uuid'};
-			$option = get_option('mynawp_uuids');
-			$uuids = explode(',', $option);
+			//$option = get_option('mynawp_uuids');
+			//$uuids = explode(',', $option['uuid']);
 			mynawp_add_uuid($addtoview);
-			$option['names'] = $newexp;
-			update_option('mynawp_uuids', $option);	
+			//$option['names'] = $newexp;
+			//update_option('mynawp_uuids', $option);	
 		} else {
 			$addtoview = '';
 		}
@@ -140,10 +141,8 @@ function mynawp_addexp() {
 	}
 }
 
-function mynawp_delexp( $uuid ) {
-	if ( !$uuid ) {
-		$uuid = $_GET['uuid'];
-	}	
+function mynawp_delexp( $uuid = null ) {
+	$uuid = isset($uuid) ? $uuid : $_GET['uuid'];
 	$options = get_option('mynawp_options');
 	$username = mynawp_decrypt($options['email_string'], 'mynawp_key');
 	$password = mynawp_decrypt($options['pwd_string'], 'mynawp_key');
@@ -211,9 +210,9 @@ function mynawp_section_text() {
 		)
 	);
 	if ( isset($_GET['newexp']) ) {
-		$uuidstring = $uuids['uuids'] . ',' . mynawp_addexp();
+		$uuidstring = $uuids['uuid'] . ',' . mynawp_addexp();
 	} else {
-		$uuidstring = $uuids['uuids'];
+		$uuidstring = $uuids['uuid'];
 	}	
 	$uuid = explode(",", $uuidstring);
 	$count = count($uuid);
@@ -235,36 +234,36 @@ function mynawp_section_text() {
 		}
 	}
 	echo "<h3>Create a New Experiment</h3><input id='mynawp_new_experiment' name='new_experiment' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&newexp=' class='button-primary' id='newexpurl'>Create This Experiment</a>";
-	echo '<h3>Experiments to Display</h3><p>Enter a comma separated list of experiment UUIDs.</p>' . mynawp_uuid_string() . '<a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $uuids['uuids'] . '&updexp=" id="updateuuid" class="button-primary">Update Experiments Display</a>';
+	echo '<h3>Experiments to Display</h3><p>Enter a comma separated list of experiment UUIDs.</p>' . mynawp_uuid_string() . '<a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $uuids['uuid'] . '&updexp=" id="updateuuid" class="button-primary">Update Experiments Display</a>';
 	echo '<h2>Login Settings</h2>';
 }
 
 function mynawp_add_uuid($uuid) {
+	$newexp = $_GET['newexp'];
 	$option = get_option('mynawp_uuids');
 	$names = explode(',', $option['names']);
-	if ( ($option != '') && (!in_array($_GET['newexp'],$names)) ) {
-		$uuids = explode(',', $option['uuids']);
+	if ( ($option != '') && (!in_array($newexp, $names)) ) {
+		$uuids = explode(',', $option['uuid']);
 		if ( !in_array($uuid, $uuids) ) {
 			array_push($uuids, $uuid);
-			array_push($names,$_GET['newexp']);
+			array_push($names, $newexp);
 		}
 		$uuids = implode(',', $uuids);
 		$names = implode(',', $names);
 	} else {
 		$uuids = $uuid;
 		$names = implode(',', $names);
-		$names = $names;
 	}
 	$uuids = trim($uuids, ',');
 	$names = trim($names, ',');
-	$option['uuids'] = $uuids;
+	$option['uuid'] = $uuids;
 	$option['names'] = $names;
 	update_option('mynawp_uuids', $option);
 }
 
 function mynawp_remove_uuid($uuid,$name) {
 	$option = get_option('mynawp_uuids');
-	$newuuid = str_replace($uuid, '', $option['uuids']);
+	$newuuid = str_replace($uuid, '', $option['uuid']);
 	if ( $newuuid[0] == ',' ) {
 		$newuuid = substr($newuuid, 1);
 	} 
@@ -279,13 +278,14 @@ function mynawp_remove_uuid($uuid,$name) {
 
 function mynawp_update_uuid($uuid) {
 	$uuids = get_option('mynawp_uuids');
-	$uuids['uuids'] = $uuid;
+	$uuids['names'] = $uuids['names'];
+	$uuids['uuid'] = $uuid;
 	update_option('mynawp_uuids', $uuids);
 }
 
 function mynawp_uuid_string() {
 	$options = get_option('mynawp_uuids');
-	return "<input id='mynawp_uuid_string' name='mynawp_options[email_string]' size='53' type='text' value='{$options['uuids']}' />";
+	return "<input id='mynawp_uuid_string' name='mynawp_options[email_string]' size='53' type='text' value='{$options['uuid']}' />";
 }
 
 function mynawp_email_string() {
