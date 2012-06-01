@@ -17,6 +17,7 @@ Manage your Maya experiments and variables from your WordPress installation, and
 1. Upload the `myna-for-wp` folder to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in WordPress.
 1. Add login information to the settings page (Settings > Myna).
+1. Add experiments and variables on the settings page as needed.
 1. Check the plugin file for return options, or use `myna_link($uuid,$link,$text='Click Here',$newwin=false,$nofollow=false)` in your template file. For instance:
 
 `myna_link('2382dbab-3ed5-406b-be36-08032fab8042','http://google.com','Default Text',true);`
