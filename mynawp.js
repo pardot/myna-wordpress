@@ -1,6 +1,25 @@
-jQuery('a[rel*="myna-"]').click(function(){
-	var mynadata = jQuery(this).attr('rel').split(' ')[0].substr(5);
-	var token = mynadata.split('|')[0].substr(4);
-	var uuid = mynadata.split('|')[1];
-	jQuery.getJSON('http://api.mynaweb.com/v1/experiment/' + uuid + '/reward?callback=?', { token: token, amount: '1.0' }, function(json){alert(json);});
+jQuery(document).ready(function() {
+	
+	var uuid = jQuery('a.mynaSuggest').attr('rel').split(' ')[0];
+	var agent = new Myna(uuid);
+	
+	function errorCallback(code, message) {
+		// Do something here, if you'd like.
+	}
+	
+	function rewardCallback() {
+		// Do something here, if you'd like. 
+	}
+	
+	function suggestCallback(choice) {
+		jQuery('a.mynaSuggest').html(choice);
+		function onClick() {
+			agent.reward(1.0, rewardCallback, errorCallback);
+			jQuery('a.mynaSuggest').unbind(onClick);
+		}
+		jQuery('a.mynaSuggest').click(onClick);
+	}
+
+	agent.suggest(suggestCallback, errorCallback);
+
 });

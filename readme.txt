@@ -16,7 +16,16 @@ Manage your Maya experiments and variables from your WordPress installation, and
 
 1. Upload the `myna-for-wp` folder to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in WordPress.
-1. Add your login information to the settings page (Settings > Myna).
+1. Add login information to the settings page (Settings > Myna).
+1. Check the plugin file for return options, or use `myna_link($uuid,$link,$text='Click Here',$newwin=false,$nofollow=false)` in your template file. For instance:
+
+`myna_link('2382dbab-3ed5-406b-be36-08032fab8042','http://google.com','Default Text',true);`
+
+produces:
+
+`<a href="http://google.com" rel="2382dbab-3ed5-406b-be36-08032fab8042" class="mynaSuggest" target="_blank">Default Text</a>`
+
+The default text is then replaced by the Myna suggestion when the document has loaded.
 
 == Requirements ==
 
@@ -25,9 +34,7 @@ Manage your Maya experiments and variables from your WordPress installation, and
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the directory of the stable readme.txt, so in this case, `/tags/4.3/screenshot-1.png` (or jpg, jpeg, gif)
-2. This is the second screen shot
+1. Admin screenshot
 
 == Changelog ==
 

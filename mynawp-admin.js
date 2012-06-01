@@ -28,7 +28,7 @@ jQuery('.deleteexp').click(function(){
 });
 
 jQuery('.delete_var').click(function(){
-	var answer = confirm('Are you sure you want to delete this experiment? This cannot be undone.');
+	var answer = confirm('Are you sure you want to delete this variable? This cannot be undone.');
 	if ( answer ) {
 		return true;
 	} else {

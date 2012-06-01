@@ -28,7 +28,7 @@ License:
 
 /* Activation */
 
-//Add placeholder options
+// Add placeholder options
 register_activation_hook( __FILE__, 'mynawp_activate' );
 function mynawp_activate() {
 	update_option('mynawp_options', '');
@@ -46,6 +46,7 @@ function mynawp_admin_add_page() {
 
 /* Writing Functions */
 
+// Detect Actions via GETs
 if ( isset($_GET['newvar']) && ( $_GET['newvar'] != '' ) ) {
 	mynawp_addvariant();
 } elseif ( isset($_GET['delvar'] ) && ( $_GET['delvar'] != '' ) ) {
@@ -58,6 +59,7 @@ if ( isset($_GET['newvar']) && ( $_GET['newvar'] != '' ) ) {
 	mynawp_update_uuid($uuid);
 }
 
+// Add a Variant
 function mynawp_addvariant() {
 	$newvar = $_GET['newvar'];
 	$uuid = $_GET['uuid'];
@@ -80,6 +82,7 @@ function mynawp_addvariant() {
 	}
 }
 
+// Delete a Variant
 function mynawp_delvariant() {
 	$delvar = $_GET['delvar'];
 	$uuid = $_GET['uuid'];
@@ -102,6 +105,7 @@ function mynawp_delvariant() {
 	}
 }
 
+// Add an Experiment
 function mynawp_addexp() {
 	$newexp = $_GET['newexp'];
 	$options = get_option('mynawp_options');
@@ -137,6 +141,7 @@ function mynawp_addexp() {
 	}
 }
 
+// Delete an Experiment
 function mynawp_delexp( $uuid = null ) {
 	$uuid = isset($uuid) ? $uuid : $_GET['uuid'];
 	$options = get_option('mynawp_options');
@@ -234,6 +239,7 @@ function mynawp_section_text() {
 	echo '<h2>Login Settings</h2>';
 }
 
+// Save Options
 function mynawp_add_uuid($uuid) {
 	$newexp = $_GET['newexp'];
 	$option = get_option('mynawp_uuids');
@@ -330,8 +336,8 @@ function get_myna_var($uuid) {
   
 }
 
-// Create and echo a Myna Link for Templating (i.e. myna_link('2382dbab-3ed5-406b-be36-08032fab8042','http://google.com',true); produces <a href="http://google.com" rel="bbe13197-5012-48f0-932f-38cd49010bb6" target="_blank">Myna Suggestion</a>)- http://mynaweb.com/docs/api.html#suggest
-function myna_link($uuid,$link,$newwin=false,$nofollow=false) {
+// Create and echo a Myna Link for Templating (i.e. myna_link('2382dbab-3ed5-406b-be36-08032fab8042','http://google.com','Default Text',true); produces <a href="http://google.com" rel="bbe13197-5012-48f0-932f-38cd49010bb6" target="_blank">Myna Suggestion</a>)- http://mynaweb.com/docs/api.html#suggest
+function myna_link($uuid,$link,$text='Click Here',$newwin=false,$nofollow=false) {
 	 		
 	$response = wp_remote_retrieve_body(wp_remote_get('http://api.mynaweb.com/v1/experiment/' . $uuid . '/suggest'));
 	$myna = json_decode($response);
@@ -340,7 +346,7 @@ function myna_link($uuid,$link,$newwin=false,$nofollow=false) {
 		return '';
 	} else {
 		$output = '<a href="' . $link . '" ';
-		$output .= 'rel="myna-' . $myna->{'token'} . '|' . $uuid;
+		$output .= 'rel="' . $uuid;
 		if ( $nofollow == true ) {
 			$output .= ' nofollow" ';
 		} else {
@@ -349,7 +355,7 @@ function myna_link($uuid,$link,$newwin=false,$nofollow=false) {
 		if ( $newwin == true ) {
 			$output .= ' target="_blank"';
 		}
-		$output .= '>' . $myna->{'choice'} . '</a>';
+		$output .= ' class="mynaSuggest">' . $text . '</a>';
 		echo $output;
 	}
   
@@ -400,8 +406,7 @@ function mynawp_decrypt($encrypted_input_string, $key='mynawp_key'){
 
 /* Deactivation */
 
-//Be kind
-//Add placeholder options
+// Be Kind (Clean Up Options)
 register_deactivation_hook( __FILE__, 'mynawp_deactivate' );
 function mynawp_deactivate() {
 	delete_option('mynawp_options');
