@@ -78,8 +78,8 @@ will allow you to `echo $myna->choice` and so on. **Please note**: this function
 
 == Requirements ==
 
-*PHP 5
-*Mcrypt
+* PHP 5
+* Mcrypt
 
 == Screenshots ==
 
