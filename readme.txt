@@ -28,9 +28,9 @@ The shortcode allows you to place a dynamic Myna link in a post (of any type) or
 
 `[myna uuid="string" link="string" newwin=boolean]Link Text[/myna]`
 
-*'uuid' is your Myna Experiment UUID.
-*'link' is where your created link will point (href).
-*'newwin' is a true/false that will make the link open in a new window (target="_blank").
+* 'uuid' is your Myna Experiment UUID.
+* 'link' is where your created link will point (href).
+* 'newwin' is a true/false that will make the link open in a new window (target="_blank").
 
 The content between the shortcode brackets is the default link text. This is what will appear if a user has JavaScript disabled, as your Myna suggestion will replace this text after the page loads. It's a good practice to put one of your potential suggestions here to minimize the visual change. If you don't put anything in here, the default text will be 'Click Here'.
 
@@ -66,9 +66,9 @@ This function fetches and returns the Myna Suggestion response for use in PHP. I
 
 This returns the values for use. As of this plugin version, this response has the following name/value pairs (according to http://mynaweb.com/docs/api.html#suggest):
 
-*`typename`: suggestion
-*`token`: String This is a unique identifier that must be sent back to the server when reward is called
-*`choice`: String The name of the variant the experiment has chosen
+* `typename`: suggestion
+* `token`: String This is a unique identifier that must be sent back to the server when reward is called
+* `choice`: String The name of the variant the experiment has chosen
 
 So, for instance:
 
