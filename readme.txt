@@ -1,7 +1,7 @@
 === Myna for WordPress ===
 Contributors: cliffseal
 Donate link: http://pardot.com
-Tags: maya, testing, MAB, decision theory, web content optimisation
+Tags: myna, testing, MAB, decision theory, web content optimisation
 Requires at least: 3.3.2
 Tested up to: 3.3.2
 Stable tag: 0.1
@@ -10,7 +10,7 @@ Plugin to incorporate Myna.
 
 == Description ==
 
-Manage your Maya experiments and variables from your WordPress installation, and include them in your template files or posts/pages/widgets.
+Manage your Myna experiments and variables from your WordPress installation, and include them in your template files or posts/pages/widgets.
 
 == Installation ==
 
