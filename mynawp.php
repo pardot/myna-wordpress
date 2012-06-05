@@ -323,7 +323,7 @@ function mynawp_add_script() {
 	wp_enqueue_script('mynawp');
 }
 
-// Fetch and Return the Myna Suggestion for use in PHP (i.e. get_myna_var('2382dbab-3ed5-406b-be36-08032fab8042'); echo $myna->choice; ) - http://mynaweb.com/docs/api.html#suggest
+// Fetch and return the Myna Suggestion for use in PHP (i.e. get_myna_var('2382dbab-3ed5-406b-be36-08032fab8042'); echo $myna->choice; ) - http://mynaweb.com/docs/api.html#suggest
 function get_myna_var($uuid) {
 	 		
 	$response = wp_remote_retrieve_body(wp_remote_get('http://api.mynaweb.com/v1/experiment/' . $uuid . '/suggest'));
@@ -336,8 +336,8 @@ function get_myna_var($uuid) {
   
 }
 
-// Create and echo a Myna Link for Templating (i.e. myna_link('2382dbab-3ed5-406b-be36-08032fab8042','http://google.com','Default Text',true); produces <a href="http://google.com" rel="bbe13197-5012-48f0-932f-38cd49010bb6" target="_blank">Myna Suggestion</a>)- http://mynaweb.com/docs/api.html#suggest
-function myna_link($uuid,$link,$text='Click Here',$newwin=false,$nofollow=false) {
+// Create and Echo a Myna Link for Templating (i.e. myna_link('72a3dd4f-73f2-4a18-a99f-a14a6b3e8e0d','http://google.com','Default Text',true); produces <a href="http://google.com" rel="72a3dd4f-73f2-4a18-a99f-a14a6b3e8e0d" target="_blank">Myna Suggestion</a>)- http://mynaweb.com/docs/api.html#suggest
+function myna_link($uuid,$link,$text='Click Here',$newwin=false) {
 	 		
 	$response = wp_remote_retrieve_body(wp_remote_get('http://api.mynaweb.com/v1/experiment/' . $uuid . '/suggest'));
 	$myna = json_decode($response);
@@ -346,12 +346,7 @@ function myna_link($uuid,$link,$text='Click Here',$newwin=false,$nofollow=false)
 		return '';
 	} else {
 		$output = '<a href="' . $link . '" ';
-		$output .= 'rel="' . $uuid;
-		if ( $nofollow == true ) {
-			$output .= ' nofollow" ';
-		} else {
-			$output .= '" ';
-		}
+		$output .= 'rel="' . $uuid . '" ';
 		if ( $newwin == true ) {
 			$output .= ' target="_blank"';
 		}
@@ -360,6 +355,32 @@ function myna_link($uuid,$link,$text='Click Here',$newwin=false,$nofollow=false)
 	}
   
 }
+
+// Shortcode that outputs the myna_link function (i.e. [myna uuid="72a3dd4f-73f2-4a18-a99f-a14a6b3e8e0d" link="http://google.com" newwin=true nofollow=true]Testing This[/myna] produces <a href="http://google.com" rel="72a3dd4f-73f2-4a18-a99f-a14a6b3e8e0d nofollow" target="_blank" class="mynaSuggest">Myna Suggestion</a>)- http://mynaweb.com/docs/api.html#suggest
+function myna_shortcode($atts, $content = 'Click Here'){
+
+	extract( shortcode_atts( array(
+		'uuid' => '',
+		'link' => '',
+		'newwin' => false
+	), $atts ) );
+
+	$response = wp_remote_retrieve_body(wp_remote_get('http://api.mynaweb.com/v1/experiment/' . $uuid . '/suggest'));
+	$myna = json_decode($response);
+
+	if ( is_wp_error($response) ) {
+		return '';
+	} else {
+		$output = '<a href="' . esc_attr($link) . '" ';
+		$output .= 'rel="' . esc_attr($uuid) . '" ';
+		if ( $newwin == true ) {
+			$output .= ' target="_blank"';
+		}
+		$output .= ' class="mynaSuggest">' . $content . '</a>';
+		return $output;
+	}
+}
+add_shortcode( 'myna', 'myna_shortcode' );
 
 /* Encryption */
 
