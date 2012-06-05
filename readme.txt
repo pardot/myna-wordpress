@@ -8,11 +8,22 @@ Stable tag: 0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Plugin to incorporate Myna.
+Interact with the new Myna API inside WordPress—create and manage experiments and variables, integrate content suggestions through shortcodes or template functions, and automatically return the value to Myna. 
 
 == Description ==
 
-Manage your Myna experiments and variables from your WordPress installation, and include them in your template files or posts/pages/widgets.
+Integrate the new web content optimisation API from [Myna](http://mynaweb.com/ "Myna") and let your best content automatically display according to real user data. With this plugin, you can manage all of your interactions with Myna from within the Admin area of WordPress (including viewing data), saving you time.
+
+= Why Use Myna? =
+
+*From MynaWeb.com:*
+
+Myna is:
+
+* Simple — you don’t need to make any decisions about experimental parameters before you begin, and you don’t need to know any stats to interpret the results.
+* Flexible — you can add and remove page variations at any time.
+Adaptable — Myna reacts to changes in customer preferences automatically. You don’t have to lift a finger.
+* Fast — Myna optimizes your page right from the start. There’s no need to wait for experiments to finish before making a decision.
 
 == Installation ==
 
@@ -78,6 +89,7 @@ will allow you to `echo $myna->choice` and so on. **Please note**: this function
 
 == Requirements ==
 
+* Myna Account
 * PHP 5
 * Mcrypt
 
