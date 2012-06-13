@@ -1,18 +1,18 @@
 === Myna for WordPress ===
 Contributors: cliffseal
 Donate link: http://pardot.com
-Tags: myna, testing, MAB, decision theory, web content optimisation
+Tags: myna, testing, MAB, decision theory, web content optimization
 Requires at least: 3.3.2
 Tested up to: 3.4
 Stable tag: 0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Manage and utilize the new Myna API from inside WordPress and get instant web content optimisation!
+Manage and utilize the new Myna API from inside WordPress and get instant web content optimization!
 
 == Description ==
 
-Integrate the new web content optimisation API from [Myna](http://mynaweb.com/ "Myna") and let your best content automatically display according to real user data. With this plugin, you can manage all of your interactions with Myna from within the Admin area of WordPress (including viewing data), saving you time: create and manage experiments and variables, integrate content suggestions through shortcodes or template functions, and automatically return the value to Myna.
+Integrate the new web content optimization API from [Myna](http://mynaweb.com/ "Myna") and let your best content automatically display according to real user data. With this plugin, you can manage all of your interactions with Myna from within the Admin area of WordPress (including viewing data), saving you time: create and manage experiments and variables, integrate content suggestions through shortcodes or template functions, and automatically return the value to Myna.
 
 = Why Use Myna? =
 
