@@ -99,5 +99,9 @@ will allow you to `echo $myna->choice` and so on. **Please note**: this function
 
 == Changelog ==
 
+= 0.1.1 =
+Update for new Myna JS Client: uses new CDN'd JS file, falls back to local when unavailable, and
+updated suggestion/reward functionality
+
 = 0.1 =
 Initial release.
