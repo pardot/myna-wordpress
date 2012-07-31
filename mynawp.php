@@ -3,7 +3,7 @@
 Plugin Name: Myna for WordPress
 Plugin URI: http://mynaweb.com
 Description: Myna Integration for WordPress
-Version: 0.1
+Version: 0.1.1
 Author: Cliff Seal (Pardot)
 Author URI: http://pardot.com
 Author Email: cliff.seal@pardot.com	
