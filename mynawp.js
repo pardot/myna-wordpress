@@ -1,25 +1,18 @@
 jQuery(document).ready(function() {
 	
 	var uuid = jQuery('a.mynaSuggest').attr('rel').split(' ')[0];
-	var agent = new Myna(uuid);
-	
-	function errorCallback(code, message) {
-		// Do something here, if you'd like.
-	}
-	
-	function rewardCallback() {
-		// Do something here, if you'd like. 
-	}
-	
-	function suggestCallback(choice) {
-		jQuery('a.mynaSuggest').html(choice);
-		function onClick() {
-			agent.reward(1.0, rewardCallback, errorCallback);
-			jQuery('a.mynaSuggest').unbind(onClick);
-		}
-		jQuery('a.mynaSuggest').click(onClick);
+	var expt = new Myna.Experiment(uuid);
+		
+	function suggestCallback(suggestion) {
+		var links = jQuery('a.mynaSuggest');    
+		links.html(suggestion.choice);
+		var target = jQuery();
+		jQuery.each(links,function(key,value) {
+			target = jQuery(value).attr('href');
+			suggestion.rewardOnClick(value, target);
+		});
 	}
 
-	agent.suggest(suggestCallback, errorCallback);
+	expt.suggest(suggestCallback);
 
 });

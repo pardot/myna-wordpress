@@ -318,7 +318,17 @@ add_action( 'wp_enqueue_scripts', 'mynawp_add_script' );
 function mynawp_add_script() {
 	wp_enqueue_script('jquery');
 	wp_register_script('mynawp', plugins_url( 'mynawp.js' , __FILE__ ), array('jquery'), false, true);
-	wp_register_script('myna', 'http://app.mynaweb.com/static/clients/basic.myna.min.js', array('jquery'), false, true);
+	
+	// Check CDN Availability
+	$test_url = @fopen('http://cdn.mynaweb.com/clients/myna-1.latest.min.js','r');
+	if ( $test_url !== false ) {
+		// Use the CDN
+		wp_register_script('myna', 'http://cdn.mynaweb.com/clients/myna-1.latest.min.js', array('jquery'), false, true);
+	} else {
+		// Fallback to Local
+		wp_register_script('myna', plugins_url( 'myna-1.1.0.min.js' , __FILE__ ), array('jquery'), false, true);
+	}
+	
 	wp_enqueue_script('myna');
 	wp_enqueue_script('mynawp');
 }
