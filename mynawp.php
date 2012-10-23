@@ -77,6 +77,7 @@ function mynawp_addvariant() {
 		))
 	);
 	$response = wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/new-variant', $args);
+	echo 'https://api.mynaweb.com/v1/experiment/' . $uuid . '/new-variant:' . $response;
 	if ( is_wp_error($response) ) {
   		echo 'An error occurred.';
 	}
@@ -179,7 +180,7 @@ function mynawp_admin_add_script() {
 function mynawp_options_page() { ?>
 	<div style="width: 90%">
 		<h1>Myna for WordPress</h1>
-		<p>Add and edit new experiments and variants below. You can also do this in your <a href="https://app.mynaweb.com" target="_blank">Myna Dashboard</a>. If you need help, read the <a href="http://mynaweb.com/docs/getting-started.html" target="_blank">Myna Documentation</a>.
+		<p>Add and edit new experiments and variants below. You can also do this in your <a href="https://mynaweb.com/dashboard" target="_blank">Myna Dashboard</a>. If you need help, read the <a href="https://mynaweb.com/help/overview" target="_blank">Myna Documentation</a>.
 		<form action="options.php" method="post" id="optionspost">
 			<?php settings_fields('mynawp_options'); ?>
 			<?php do_settings_sections('mynaplugin'); ?>
@@ -217,20 +218,21 @@ function mynawp_section_text() {
 	}	
 	$uuid = explode(",", $uuidstring);
 	$count = count($uuid);
-	for ( $i = 0; $i <= $count; $i++ ) {
+	for ( $i = 0; $i < $count; $i++ ) {
 		$response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid[$i] . '/info', $args));
 		$decoded = json_decode($response);
+		//var_dump($decoded);
 		if ( $decoded->{'uuid'} ) {
-			$output = '<h4>' . $decoded->{'name'} . ': <span id="thisuuid">' . $decoded->{'uuid'} . '</span></h4>';
+			$output = '<div id="' . $decoded->{'uuid'} . '"><h4>' . $decoded->{'name'} . ': <span id="thisuuid">' . $decoded->{'uuid'} . '</span></h4>';
 			if ( $decoded->{'variants'} ) {
-				$output .= '<table class="widefat"><thead><th>Name</th><th>Views</th><th>Total Reward</th><th>Confidence</th><th></th></thead><tbody>';
+				$output .= '<table class="widefat"><thead><th>Name</th><th>Views</th><th>Total Reward</th><th>Lower Confidence Bound</th><th>Upper Confidence Bound</th><th></th></thead><tbody>';
 				foreach ( $decoded->{'variants'} as $variant ) {
     				$output .= '<tr>';
-    				$output .= '<td>'. $variant->{'name'} . '</td><td>'. $variant->{'views'} . '</td><td>'. $variant->{'totalReward'} . '</td><td>'. $variant->{'confidenceBound'} . '</td><td><a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $decoded->{'uuid'} . '&delvar=' . $variant->{'name'} .'" class="delete_var">Delete</a></td></tr>';
+    				$output .= '<td>'. $variant->{'name'} . '</td><td>'. $variant->{'views'} . '</td><td>'. $variant->{'totalReward'} . '</td><td>'. $variant->{'lowerConfidenceBound'} . '</td><td>'. $variant->{'upperConfidenceBound'} . '</td><td><a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $decoded->{'uuid'} . '&delvar=' . $variant->{'name'} .'" class="delete_var">Delete</a></td></tr>';
 				}
-				$output .= '<tfoot><th>Name</th><th>Views</th><th>Total Reward</th><th>Confidence</th><th></th></tfoot></tbody></table>';
+				$output .= '</tbody></table>';
 			}
-			$output .= "<br /><input id='mynawp_new_variant' name='new_variant' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->{'uuid'} . "&newvar=' id='newvarurl' class='button-primary'>Add This Variant</a><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->{'uuid'} . "&delexp=1' id='delexpurl' class='button-primary alignright deleteexp' rel=" . $decoded->{'uuid'} . ">Delete This Experiment</a>";
+			$output .= "<br /><input class='mynawp_new_variant " . $decoded->{'uuid'} . "' name='new_variant' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->{'uuid'} . "&newvar=' class='newvarurl button-primary'>Add This Variant</a><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->{'uuid'} . "&delexp=1' id='delexpurl' class='button-primary alignright deleteexp' rel=" . $decoded->{'uuid'} . ">Delete This Experiment</a></div>";
 			echo $output;
 		}
 	}
