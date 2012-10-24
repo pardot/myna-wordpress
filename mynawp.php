@@ -77,7 +77,6 @@ function mynawp_addvariant() {
 		))
 	);
 	$response = wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/new-variant', $args);
-	//var_dump($response);
 	if ( is_wp_error($response) ) {
   		echo 'An error occurred.';
 	}
@@ -221,7 +220,6 @@ function mynawp_section_text() {
 	for ( $i = 0; $i < $count; $i++ ) {
 		$response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid[$i] . '/info', $args));
 		$decoded = json_decode($response);
-		//var_dump($decoded);
 		if ( $decoded->{'uuid'} ) {
 			$output = '<div id="' . $decoded->{'uuid'} . '"><h4>' . $decoded->{'name'} . ': <span id="thisuuid">' . $decoded->{'uuid'} . '</span></h4>';
 			if ( $decoded->{'variants'} ) {
