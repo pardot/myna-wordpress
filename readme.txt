@@ -3,8 +3,8 @@ Contributors: cliffseal
 Donate link: http://pardot.com
 Tags: myna, testing, MAB, decision theory, web content optimization
 Requires at least: 3.3.2
-Tested up to: 3.4.1
-Stable tag: 0.1.1
+Tested up to: 3.5
+Stable tag: 0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -95,9 +95,13 @@ will allow you to `echo $myna->choice` and so on. **Please note**: this function
 
 == Screenshots ==
 
-1. Admin screenshot
+1. Admin area
 
 == Changelog ==
+
+= 0.2 =
+1. Performance enhancements and fallbacks for when Myna might be down
+1. Fixed links in Admin area
 
 = 0.1.1 =
 Update for new Myna JS Client: uses new CDN'd JS file, falls back to local when unavailable, and

@@ -3,7 +3,7 @@
 Plugin Name: Myna for WordPress
 Plugin URI: http://mynaweb.com
 Description: Myna Integration for WordPress
-Version: 0.1.1
+Version: 0.2
 Author: Cliff Seal (Pardot)
 Author URI: http://pardot.com
 Author Email: cliff.seal@pardot.com	
@@ -213,22 +213,50 @@ function mynawp_section_text() {
 	$response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/user/info', $args));
 	$decoded = json_decode($response);
 	
-	for ( $i=0; $i<=count($decoded); $i++ ) {
-		$output = '<div id="' . $decoded->experiments[$i]->{'uuid'} . '"><h4>' . $decoded->experiments[$i]->{'name'} . ': <span id="thisuuid">' . $decoded->experiments[$i]->{'uuid'} . '</span></h4>';
-		if ( $decoded->experiments[$i]->{'variants'} ) {
-			$output .= '<table class="widefat"><thead><th>Name</th><th>Views</th><th>Total Reward</th><th>Lower Confidence Bound</th><th>Upper Confidence Bound</th><th></th></thead><tbody>';
-			foreach ( $decoded->experiments[$i]->{'variants'} as $variant ) {
-				$output .= '<tr>';
-				$output .= '<td>'. $variant->{'name'} . '</td><td>'. $variant->{'views'} . '</td><td>'. $variant->{'totalReward'} . '</td><td>'. $variant->{'lowerConfidenceBound'} . '</td><td>'. $variant->{'upperConfidenceBound'} . '</td><td><a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $decoded->experiments[$i]->{'uuid'} . '&delvar=' . $variant->{'name'} .'" class="delete_var">Delete</a></td></tr>';
-			}
-			$output .= '</tbody></table>';
-		}
-		$output .= "<br /><input class='mynawp_new_variant " . $decoded->experiments[$i]->{'uuid'} . "' name='new_variant' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&newvar=' class='newvarurl button-primary'>Add This Variant</a><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&delexp=1' id='delexpurl' class='button-primary alignright deleteexp' rel=" . $decoded->experiments[$i]->{'uuid'} . ">Delete This Experiment</a></div>";
-		echo $output;
+	$cachedresponse = get_transient( 'myna_info_check' );
+	
+	if ( $cachedresponse !== false && $decoded === $cachedresponse ) {
+	
+		$decoded = $cachedresponse;
+		
+	} else {
+	
+		set_transient( 'myna_info_check', $decoded );
+		
 	}
+	
+		if ( $decoded != '' ) {
+		
+			$output = '';
+		
+			for ( $i=0; $i<=count($decoded); $i++ ) {
+				$output .= '<div id="' . $decoded->experiments[$i]->{'uuid'} . '"><h4>' . $decoded->experiments[$i]->{'name'} . ': <span id="thisuuid">' . $decoded->experiments[$i]->{'uuid'} . '</span></h4>';
+				if ( $decoded->experiments[$i]->{'variants'} ) {
+					$output .= '<table class="widefat"><thead><th>Name</th><th>Views</th><th>Total Reward</th><th>Lower Confidence Bound</th><th>Upper Confidence Bound</th><th></th></thead><tbody>';
+					foreach ( $decoded->experiments[$i]->{'variants'} as $variant ) {
+						$output .= '<tr>';
+						$output .= '<td>'. $variant->{'name'} . '</td><td>'. $variant->{'views'} . '</td><td>'. $variant->{'totalReward'} . '</td><td>'. $variant->{'lowerConfidenceBound'} . '</td><td>'. $variant->{'upperConfidenceBound'} . '</td><td><a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $decoded->experiments[$i]->{'uuid'} . '&delvar=' . $variant->{'name'} .'" class="delete_var">Delete</a></td></tr>';
+					}
+					$output .= '</tbody></table>';
+				}
+				$output .= "<br /><input class='mynawp_new_variant " . $decoded->experiments[$i]->{'uuid'} . "' name='new_variant' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&newvar=' class='newvarurl button-primary'>Add This Variant</a><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&delexp=1' id='delexpurl' class='button-primary alignright deleteexp' rel=" . $decoded->experiments[$i]->{'uuid'} . ">Delete This Experiment</a></div>";
+			}
+			
+			echo $output;
+			
+			set_transient( 'myna_fallback_admin', $output);
+			set_transient( 'myna_info_check', $decoded );
+		
+		} else {
+			
+			echo get_transient( 'myna_fallback_admin' );
+			
+		}	
 	
 	echo "<h3>Create a New Experiment</h3><input id='mynawp_new_experiment' name='new_experiment' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&newexp=' class='button-primary' id='newexpurl'>Create This Experiment</a>";
 	echo '<h2>Login Settings</h2>';
+	
+	
 }
 
 // Save Options
