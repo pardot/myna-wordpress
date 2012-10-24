@@ -210,32 +210,24 @@ function mynawp_section_text() {
 			'Authorization' => 'Basic ' . base64_encode( $username . ':' . $password )
 		)
 	);
-	if ( isset($_GET['newexp']) ) {
-		$uuidstring = $uuids['uuid'] . ',' . mynawp_addexp();
-	} else {
-		$uuidstring = $uuids['uuid'];
-	}	
-	$uuid = explode(",", $uuidstring);
-	$count = count($uuid);
-	for ( $i = 0; $i < $count; $i++ ) {
-		$response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid[$i] . '/info', $args));
-		$decoded = json_decode($response);
-		if ( $decoded->{'uuid'} ) {
-			$output = '<div id="' . $decoded->{'uuid'} . '"><h4>' . $decoded->{'name'} . ': <span id="thisuuid">' . $decoded->{'uuid'} . '</span></h4>';
-			if ( $decoded->{'variants'} ) {
-				$output .= '<table class="widefat"><thead><th>Name</th><th>Views</th><th>Total Reward</th><th>Lower Confidence Bound</th><th>Upper Confidence Bound</th><th></th></thead><tbody>';
-				foreach ( $decoded->{'variants'} as $variant ) {
-    				$output .= '<tr>';
-    				$output .= '<td>'. $variant->{'name'} . '</td><td>'. $variant->{'views'} . '</td><td>'. $variant->{'totalReward'} . '</td><td>'. $variant->{'lowerConfidenceBound'} . '</td><td>'. $variant->{'upperConfidenceBound'} . '</td><td><a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $decoded->{'uuid'} . '&delvar=' . $variant->{'name'} .'" class="delete_var">Delete</a></td></tr>';
-				}
-				$output .= '</tbody></table>';
+	$response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/user/info', $args));
+	$decoded = json_decode($response);
+	
+	for ( $i=0; $i<=count($decoded); $i++ ) {
+		$output = '<div id="' . $decoded->experiments[$i]->{'uuid'} . '"><h4>' . $decoded->experiments[$i]->{'name'} . ': <span id="thisuuid">' . $decoded->experiments[$i]->{'uuid'} . '</span></h4>';
+		if ( $decoded->experiments[$i]->{'variants'} ) {
+			$output .= '<table class="widefat"><thead><th>Name</th><th>Views</th><th>Total Reward</th><th>Lower Confidence Bound</th><th>Upper Confidence Bound</th><th></th></thead><tbody>';
+			foreach ( $decoded->experiments[$i]->{'variants'} as $variant ) {
+				$output .= '<tr>';
+				$output .= '<td>'. $variant->{'name'} . '</td><td>'. $variant->{'views'} . '</td><td>'. $variant->{'totalReward'} . '</td><td>'. $variant->{'lowerConfidenceBound'} . '</td><td>'. $variant->{'upperConfidenceBound'} . '</td><td><a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $decoded->experiments[$i]->{'uuid'} . '&delvar=' . $variant->{'name'} .'" class="delete_var">Delete</a></td></tr>';
 			}
-			$output .= "<br /><input class='mynawp_new_variant " . $decoded->{'uuid'} . "' name='new_variant' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->{'uuid'} . "&newvar=' class='newvarurl button-primary'>Add This Variant</a><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->{'uuid'} . "&delexp=1' id='delexpurl' class='button-primary alignright deleteexp' rel=" . $decoded->{'uuid'} . ">Delete This Experiment</a></div>";
-			echo $output;
+			$output .= '</tbody></table>';
 		}
+		$output .= "<br /><input class='mynawp_new_variant " . $decoded->experiments[$i]->{'uuid'} . "' name='new_variant' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&newvar=' class='newvarurl button-primary'>Add This Variant</a><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&delexp=1' id='delexpurl' class='button-primary alignright deleteexp' rel=" . $decoded->experiments[$i]->{'uuid'} . ">Delete This Experiment</a></div>";
+		echo $output;
 	}
+	
 	echo "<h3>Create a New Experiment</h3><input id='mynawp_new_experiment' name='new_experiment' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&newexp=' class='button-primary' id='newexpurl'>Create This Experiment</a>";
-	echo '<h3>Experiments to Display</h3><p>Enter a comma separated list of experiment UUIDs.</p>' . mynawp_uuid_string() . '<a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $uuids['uuid'] . '&updexp=" id="updateuuid" class="button-primary">Update Experiments Display</a>';
 	echo '<h2>Login Settings</h2>';
 }
 
