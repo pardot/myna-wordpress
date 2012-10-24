@@ -4,13 +4,12 @@ jQuery(document).ready(function() {
 	var curexpuuids = jQuery('#updateuuid').attr('href');
 	
 	
-	jQuery('.mynawp_new_variant').each(function(i) {
+	jQuery('#optionspost').children('div').each(function(i) {
 		var thisuuid = jQuery(this).attr('class');
-		var curvarurl = jQuery(this).parent().find('.newvarurl').attr('href');
-		curvarurl = thisuuid
-		jQuery('.mynawp_new_variant').bind('keyup', function(){
+		var curvarurl = jQuery(this).children('.newvarurl').attr('href');
+		jQuery(this).children('.mynawp_new_variant').bind('keyup', function(){
 			var newvar = jQuery(this).val();
-			jQuery(this).parent().find('.newvarurl').attr('href', curvarurl + newvar);
+			jQuery(this).parent().children('.newvarurl').attr('href', curvarurl + newvar);
 		});
 	});	
 	

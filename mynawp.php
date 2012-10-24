@@ -77,7 +77,7 @@ function mynawp_addvariant() {
 		))
 	);
 	$response = wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/new-variant', $args);
-	echo 'https://api.mynaweb.com/v1/experiment/' . $uuid . '/new-variant:' . $response;
+	//var_dump($response);
 	if ( is_wp_error($response) ) {
   		echo 'An error occurred.';
 	}
