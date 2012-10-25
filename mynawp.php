@@ -3,11 +3,7 @@
 Plugin Name: Myna for WordPress
 Plugin URI: http://mynaweb.com
 Description: Myna Integration for WordPress
-<<<<<<< HEAD
-Version: 0.2
-=======
 Version: 0.2.1
->>>>>>> Fix experiments bug; bump version
 Author: Cliff Seal (Pardot)
 Author URI: http://pardot.com
 Author Email: cliff.seal@pardot.com	
@@ -55,12 +51,11 @@ if ( isset($_GET['newvar']) && ( $_GET['newvar'] != '' ) ) {
 	mynawp_addvariant();
 } elseif ( isset($_GET['delvar'] ) && ( $_GET['delvar'] != '' ) ) {
 	mynawp_delvariant();
+} elseif ( isset($_GET['newexp'] ) && ( $_GET['newexp'] != '' ) ) {
+	mynawp_addexp();
 } elseif ( isset($_GET['delexp'] ) && ( $_GET['delexp'] != '' ) ) {
 	$uuid = $_GET['updexp'];
 	mynawp_delexp($uuid);
-} elseif ( isset($_GET['updexp'] ) && ( $_GET['updexp'] != '' ) ) {
-	$uuid = trim($_GET['updexp'], ',');
-	mynawp_update_uuid($uuid);
 }
 
 // Add a Variant
@@ -125,23 +120,9 @@ function mynawp_addexp() {
 			'experiment' => $newexp
 		))
 	);
-	$option = get_option('mynawp_uuids');
-	$pos = strpos($option['names'],$newexp);
-	if ( $pos === false ) {
-		$response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/experiment/new', $args));
-		$decoded = json_decode($response);
-		if ( isset($decoded->{'uuid'}) ) {
-			$addtoview = $decoded->{'uuid'};
-			mynawp_add_uuid($addtoview);
-		} else {
-			$addtoview = '';
-		}
-		if ( is_wp_error($response) ) {
-	  		echo 'An error occurred.';
-		}
-		return $addtoview;
-	} else {
-		return false;
+	$response = wp_remote_request('https://api.mynaweb.com/v1/experiment/new', $args);
+	if ( is_wp_error($response) ) {
+  		echo 'An error occurred.';
 	}
 }
 
@@ -158,14 +139,10 @@ function mynawp_delexp( $uuid = null ) {
 		),
 		'method' => 'POST',
 	);
-	$response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/info', $args));
-	$storename = json_decode($response);
-	$storename = $storename->{'name'};
 	$response = wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/delete', $args);
 	if ( is_wp_error($response) ) {
   		echo 'An error occurred.';
 	}
-	mynawp_remove_uuid($uuid,$storename);
 }
 
 /* Options Page Functions */
@@ -233,11 +210,7 @@ function mynawp_section_text() {
 		
 			$output = '';
 		
-<<<<<<< HEAD
-			for ( $i=0; $i<=count($decoded); $i++ ) {
-=======
 			for ( $i=0; $i<count($decoded->experiments); $i++ ) {
->>>>>>> Fix experiments bug; bump version
 				$output .= '<div id="' . $decoded->experiments[$i]->{'uuid'} . '"><h4>' . $decoded->experiments[$i]->{'name'} . ': <span id="thisuuid">' . $decoded->experiments[$i]->{'uuid'} . '</span></h4>';
 				if ( $decoded->experiments[$i]->{'variants'} ) {
 					$output .= '<table class="widefat"><thead><th>Name</th><th>Views</th><th>Total Reward</th><th>Lower Confidence Bound</th><th>Upper Confidence Bound</th><th></th></thead><tbody>';
@@ -268,56 +241,6 @@ function mynawp_section_text() {
 }
 
 // Save Options
-function mynawp_add_uuid($uuid) {
-	$newexp = $_GET['newexp'];
-	$option = get_option('mynawp_uuids');
-	$names = explode(',', $option['names']);
-	if ( ($option != '') && (!in_array($newexp, $names)) ) {
-		$uuids = explode(',', $option['uuid']);
-		if ( !in_array($uuid, $uuids) ) {
-			array_push($uuids, $uuid);
-			array_push($names, $newexp);
-		}
-		$uuids = implode(',', $uuids);
-		$names = implode(',', $names);
-	} else {
-		$uuids = $uuid;
-		$names = implode(',', $names);
-	}
-	$uuids = trim($uuids, ',');
-	$names = trim($names, ',');
-	$option['uuid'] = $uuids;
-	$option['names'] = $names;
-	update_option('mynawp_uuids', $option);
-}
-
-function mynawp_remove_uuid($uuid,$name) {
-	$option = get_option('mynawp_uuids');
-	$newuuid = str_replace($uuid, '', $option['uuid']);
-	if ( $newuuid[0] == ',' ) {
-		$newuuid = substr($newuuid, 1);
-	} 
-	$newoption['uuid'] = trim($newuuid, ',');
-	$newname = str_replace($name, '', $option['names']);
-	if ( $newname[0] == ',' ) {
-		$newname = substr($newname, 1);
-	} 
-	$newoption['names'] = trim($newname, ',');
-	update_option('mynawp_uuids', $newoption);
-}
-
-function mynawp_update_uuid($uuid) {
-	$uuids = get_option('mynawp_uuids');
-	$uuids['names'] = $uuids['names'];
-	$uuids['uuid'] = $uuid;
-	update_option('mynawp_uuids', $uuids);
-}
-
-function mynawp_uuid_string() {
-	$options = get_option('mynawp_uuids');
-	return "<input id='mynawp_uuid_string' name='mynawp_options[email_string]' size='53' type='text' value='{$options['uuid']}' />";
-}
-
 function mynawp_email_string() {
 	$options = get_option('mynawp_options');
 	if ( $options ) {

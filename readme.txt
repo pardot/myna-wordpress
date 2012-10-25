@@ -25,10 +25,6 @@ Myna is:
 Adaptable — Myna reacts to changes in customer preferences automatically. You don’t have to lift a finger.
 * Fast — Myna optimizes your page right from the start. There’s no need to wait for experiments to finish before making a decision.
 
-= Contribute =
-
-This plugin is [on GitHub](https://github.com/Pardot/myna-wordpress "Myna plugin on GitHub), so feel free to contribute, request a feature, or fork it for your own purposes.
-
 == Installation ==
 
 1. Upload the `myna-for-wp` folder to the `/wp-content/plugins/` directory.
@@ -103,13 +99,10 @@ will allow you to `echo $myna->choice` and so on. **Please note**: this function
 
 == Changelog ==
 
-<<<<<<< HEAD
-=======
 = 0.2.1 =
 
 Fix experiments display bug
 
->>>>>>> Fix experiments bug; bump version
 = 0.2 =
 1. Performance enhancements and fallbacks for when Myna might be down
 1. Fixed links in Admin area
