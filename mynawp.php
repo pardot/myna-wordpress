@@ -3,7 +3,11 @@
 Plugin Name: Myna for WordPress
 Plugin URI: http://mynaweb.com
 Description: Myna Integration for WordPress
+<<<<<<< HEAD
 Version: 0.2
+=======
+Version: 0.2.1
+>>>>>>> Fix experiments bug; bump version
 Author: Cliff Seal (Pardot)
 Author URI: http://pardot.com
 Author Email: cliff.seal@pardot.com	
@@ -229,7 +233,11 @@ function mynawp_section_text() {
 		
 			$output = '';
 		
+<<<<<<< HEAD
 			for ( $i=0; $i<=count($decoded); $i++ ) {
+=======
+			for ( $i=0; $i<count($decoded->experiments); $i++ ) {
+>>>>>>> Fix experiments bug; bump version
 				$output .= '<div id="' . $decoded->experiments[$i]->{'uuid'} . '"><h4>' . $decoded->experiments[$i]->{'name'} . ': <span id="thisuuid">' . $decoded->experiments[$i]->{'uuid'} . '</span></h4>';
 				if ( $decoded->experiments[$i]->{'variants'} ) {
 					$output .= '<table class="widefat"><thead><th>Name</th><th>Views</th><th>Total Reward</th><th>Lower Confidence Bound</th><th>Upper Confidence Bound</th><th></th></thead><tbody>';

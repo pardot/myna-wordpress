@@ -103,6 +103,13 @@ will allow you to `echo $myna->choice` and so on. **Please note**: this function
 
 == Changelog ==
 
+<<<<<<< HEAD
+=======
+= 0.2.1 =
+
+Fix experiments display bug
+
+>>>>>>> Fix experiments bug; bump version
 = 0.2 =
 1. Performance enhancements and fallbacks for when Myna might be down
 1. Fixed links in Admin area
