@@ -4,7 +4,7 @@ Donate link: http://pardot.com
 Tags: myna, testing, MAB, decision theory, web content optimization
 Requires at least: 3.3.2
 Tested up to: 3.5
-Stable tag: 0.2
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -101,7 +101,7 @@ will allow you to `echo $myna->choice` and so on. **Please note**: this function
 
 = 0.2.1 =
 
-Fix experiments display bug
+Fix experiments creation and display bug
 
 = 0.2 =
 1. Performance enhancements and fallbacks for when Myna might be down
