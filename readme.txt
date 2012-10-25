@@ -27,7 +27,7 @@ Adaptable — Myna reacts to changes in customer preferences automatically. You 
 
 = Contribute =
 
-This plugin is [on GitHub](https://github.com/Pardot/myna-wordpress "Myna plugin on GitHub), so feel free to contribute, request a feature, or fork it for your own purposes.
+This plugin is [on GitHub](https://github.com/Pardot/myna-wordpress "Myna plugin on GitHub"), so feel free to contribute, request a feature, or fork it for your own purposes.
 
 == Installation ==
 
