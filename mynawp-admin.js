@@ -33,6 +33,15 @@ jQuery(document).ready(function() {
 		}
 	});
 	
+	jQuery('.resetexp').click(function(){
+		var answer = confirm('Are you sure you want to reset this experiment? This cannot be undone.');
+		if ( answer ) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	
 	jQuery('.delete_var').click(function(){
 		var answer = confirm('Are you sure you want to delete this variable? This cannot be undone.');
 		if ( answer ) {

@@ -56,7 +56,11 @@ if ( isset($_GET['newvar']) && ( $_GET['newvar'] != '' ) ) {
 } elseif ( isset($_GET['delexp'] ) && ( $_GET['delexp'] != '' ) ) {
 	$uuid = $_GET['updexp'];
 	mynawp_delexp($uuid);
+} elseif ( isset($_GET['resetexp'] ) && ( $_GET['resetexp'] != '' ) ) {
+	$uuid = $_GET['updexp'];
+	mynawp_resexp($uuid);
 }
+
 
 // Add a Variant
 function mynawp_addvariant() {
@@ -145,6 +149,25 @@ function mynawp_delexp( $uuid = null ) {
 	}
 }
 
+// Reset an Experiment
+function mynawp_resexp( $uuid = null ) {
+	$uuid = isset($uuid) ? $uuid : $_GET['uuid'];
+	$options = get_option('mynawp_options');
+	$username = mynawp_decrypt($options['email_string'], 'mynawp_key');
+	$password = mynawp_decrypt($options['pwd_string'], 'mynawp_key');
+	$args = array(
+		'headers' => array(
+			'Accept' => 'application/json',
+			'Authorization' => 'Basic ' . base64_encode( $username . ':' . $password )
+		),
+		'method' => 'POST',
+	);
+	$response = wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/reset', $args);
+	if ( is_wp_error($response) ) {
+  		echo 'An error occurred.';
+	}
+}
+
 /* Options Page Functions */
 
 // Add Scripts
@@ -216,11 +239,11 @@ function mynawp_section_text() {
 					$output .= '<table class="widefat"><thead><th>Name</th><th>Views</th><th>Total Reward</th><th>Lower Confidence Bound</th><th>Upper Confidence Bound</th><th></th></thead><tbody>';
 					foreach ( $decoded->experiments[$i]->{'variants'} as $variant ) {
 						$output .= '<tr>';
-						$output .= '<td>'. $variant->{'name'} . '</td><td>'. $variant->{'views'} . '</td><td>'. $variant->{'totalReward'} . '</td><td>'. $variant->{'lowerConfidenceBound'} . '</td><td>'. $variant->{'upperConfidenceBound'} . '</td><td><a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $decoded->experiments[$i]->{'uuid'} . '&delvar=' . $variant->{'name'} .'" class="delete_var">Delete</a></td></tr>';
+						$output .= '<td>'. $variant->{'name'} . '</td><td>'. $variant->{'views'} . '</td><td>'. $variant->{'totalReward'} . '</td><td>'. $variant->{'lowerConfidenceBound'} . '</td><td>'. $variant->{'upperConfidenceBound'} . '</td><td><span class="delete"><a href="' . admin_url( 'options-general.php?page=mynawp' ) . '&uuid=' . $decoded->experiments[$i]->{'uuid'} . '&delvar=' . $variant->{'name'} .'" class="delete_var">Delete Variant</a></span></td></tr>';
 					}
 					$output .= '</tbody></table>';
 				}
-				$output .= "<br /><input class='mynawp_new_variant " . $decoded->experiments[$i]->{'uuid'} . "' name='new_variant' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&newvar=' class='newvarurl button-primary'>Add This Variant</a><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&delexp=1' id='delexpurl' class='button-primary alignright deleteexp' rel=" . $decoded->experiments[$i]->{'uuid'} . ">Delete This Experiment</a></div>";
+				$output .= "<br /><input class='mynawp_new_variant " . $decoded->experiments[$i]->{'uuid'} . "' name='new_variant' size='53' type='text' /> <a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&newvar=' class='newvarurl button-primary'>Add Variant</a><span class='alignright delete'><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&delexp=1' id='delexpurl' class='deleteexp' rel=" . $decoded->experiments[$i]->{'uuid'} . ">Delete Experiment</a></span><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&uuid=" . $decoded->experiments[$i]->{'uuid'} . "&resetexp=1' id='resetexpurl' class='button alignright resetexp' rel=" . $decoded->experiments[$i]->{'uuid'} . " style='margin-right: 5px;'>Reset Experiment</a>  </div>";
 			}
 			
 			echo $output;
@@ -234,7 +257,7 @@ function mynawp_section_text() {
 			
 		}	
 	
-	echo "<h3>Create a New Experiment</h3><input id='mynawp_new_experiment' name='new_experiment' size='53' type='text' /><a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&newexp=' class='button-primary' id='newexpurl'>Create This Experiment</a>";
+	echo "<h3>Create a New Experiment</h3><input id='mynawp_new_experiment' name='new_experiment' size='53' type='text' /> <a href='" . admin_url( 'options-general.php?page=mynawp' ) . "&newexp=' class='button-primary' id='newexpurl'>Create Experiment</a>";
 	echo '<h2>Login Settings</h2>';
 	
 	
@@ -271,13 +294,13 @@ function mynawp_add_script() {
 	wp_register_script('mynawp', plugins_url( 'mynawp.js' , __FILE__ ), array('jquery'), false, true);
 	
 	// Check CDN Availability
-	$test_url = @fopen('http://cdn.mynaweb.com/clients/myna-1.latest.min.js','r');
+	$test_url = @fopen('http://cdn.mynaweb.com/clients/myna-html-1.latest.min.js','r');
 	if ( $test_url !== false ) {
 		// Use the CDN
-		wp_register_script('myna', 'http://cdn.mynaweb.com/clients/myna-1.latest.min.js', array('jquery'), false, true);
+		wp_register_script('myna', 'http://cdn.mynaweb.com/clients/myna-html-1.latest.min.js', array('jquery'), false, true);
 	} else {
 		// Fallback to Local
-		wp_register_script('myna', plugins_url( 'myna-1.1.0.min.js' , __FILE__ ), array('jquery'), false, true);
+		wp_register_script('myna', plugins_url( 'myna-1.1.2.min.js' , __FILE__ ), array('jquery'), false, true);
 	}
 	
 	wp_enqueue_script('myna');
