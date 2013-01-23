@@ -357,8 +357,8 @@ function myna_shortcode($atts, $content = 'Click Here'){
 	extract( shortcode_atts( array(
 		'uuid' => '',
 		'link' => '',
-        'data-bind' => 'text',
-        'data-goal' => 'click'
+        'bind' => 'text',
+        'goal' => 'click',
 		'newwin' => false
 	), $atts ) );
 
@@ -384,7 +384,7 @@ function myna_shortcode($atts, $content = 'Click Here'){
             if ( $newwin == true ) {
                 $output .= ' target="_blank"';
             }
-            $output .= ' data-show="' . $variant->{'name'} . '" data-bind="text" data-goal="click"';
+            $output .= ' data-show="' . $variant->{'name'} . '" data-bind="' . $bind . '" data-goal="' . $goal . '"';
             $output .= ' class="mynaSuggest">' . $content . '</a>';
         }
 		return $output;
