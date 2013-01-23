@@ -290,21 +290,30 @@ function mynawp_pwd_string() {
 add_action( 'wp_enqueue_scripts', 'mynawp_add_script' );
 
 function mynawp_add_script() {
-	wp_enqueue_script('jquery');
-	wp_register_script('mynawp', plugins_url( 'mynawp.js' , __FILE__ ), array('jquery'), false, true);
-	
+
 	// Check CDN Availability
 	$test_url = @fopen('http://cdn.mynaweb.com/clients/myna-html-1.latest.min.js','r');
 	if ( $test_url !== false ) {
 		// Use the CDN
-		wp_register_script('myna', 'http://cdn.mynaweb.com/clients/myna-html-1.latest.min.js', array('jquery'), false, true);
+		wp_register_script('myna', 'http://cdn.mynaweb.com/clients/myna-html-1.latest.min.js', array('jquery'), false);
 	} else {
 		// Fallback to Local
-		wp_register_script('myna', plugins_url( 'myna-1.1.2.min.js' , __FILE__ ), array('jquery'), false, true);
+		wp_register_script('myna', plugins_url( 'myna-1.1.2.min.js' , __FILE__ ), array('jquery'), false);
 	}
 	
 	wp_enqueue_script('myna');
-	wp_enqueue_script('mynawp');
+
+}
+
+add_action( 'wp_head', 'mynawp_initiate_script' );
+
+function mynawp_initiate_script() {
+    echo "
+<script>
+  Myna.init({ 'experiments': [
+    { 'uuid': '5a7e937d-aabe-4885-8989-3071544a2f5b', 'class': 'mynaSuggest', 'default': 'Mid-Stage 2' }
+  ]})
+</script>";
 }
 
 // Fetch and return the Myna Suggestion for use in PHP (i.e. get_myna_var('2382dbab-3ed5-406b-be36-08032fab8042'); echo $myna->choice; ) - http://mynaweb.com/docs/api.html#suggest
@@ -337,6 +346,8 @@ function myna_link($uuid,$link,$text='Click Here',$newwin=false) {
 		$output .= ' class="mynaSuggest">' . $text . '</a>';
 		echo $output;
 	}
+
+    return $output;
   
 }
 
@@ -346,24 +357,40 @@ function myna_shortcode($atts, $content = 'Click Here'){
 	extract( shortcode_atts( array(
 		'uuid' => '',
 		'link' => '',
+        'data-bind' => 'text',
+        'data-goal' => 'click'
 		'newwin' => false
 	), $atts ) );
 
-	$response = wp_remote_retrieve_body(wp_remote_get('http://api.mynaweb.com/v1/experiment/' . $uuid . '/suggest'));
-	$myna = json_decode($response);
+    $options = get_option('mynawp_options');
+    $username = mynawp_decrypt($options['email_string'], 'mynawp_key');
+    $password = mynawp_decrypt($options['pwd_string'], 'mynawp_key');
+
+    $args = array(
+        'headers' => array(
+            'Authorization' => 'Basic ' . base64_encode( $username . ':' . $password )
+        )
+    );
+    $response = wp_remote_retrieve_body(wp_remote_request('https://api.mynaweb.com/v1/experiment/' . $uuid . '/info', $args));
+    $myna = json_decode($response);
 
 	if ( is_wp_error($response) ) {
 		return '';
 	} else {
-		$output = '<a href="' . esc_attr($link) . '" ';
-		$output .= 'rel="' . esc_attr($uuid) . '" ';
-		if ( $newwin == true ) {
-			$output .= ' target="_blank"';
-		}
-		$output .= ' class="mynaSuggest">' . $content . '</a>';
+        $output = '';
+        foreach ( $myna->{'variants'} as $variant ) {
+            $output .= '<a href="' . esc_attr($link) . '" ';
+            $output .= 'rel="' . esc_attr($uuid) . '" ';
+            if ( $newwin == true ) {
+                $output .= ' target="_blank"';
+            }
+            $output .= ' data-show="' . $variant->{'name'} . '" data-bind="text" data-goal="click"';
+            $output .= ' class="mynaSuggest">' . $content . '</a>';
+        }
 		return $output;
 	}
 }
+
 add_shortcode( 'myna', 'myna_shortcode' );
 
 /* Encryption */
